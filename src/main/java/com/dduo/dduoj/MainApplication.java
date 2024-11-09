@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @PropertySource(value={"application-prod.yml"})
 public class MainApplication {
 
+    // 尝试一下
     public static void main(String[] args) {
         SpringApplication.run(MainApplication.class, args);
     }
