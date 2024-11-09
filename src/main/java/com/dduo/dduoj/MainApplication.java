@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true)
 @PropertySource(value={"application-prod.yml"})
 public class MainApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(MainApplication.class, args);
     }

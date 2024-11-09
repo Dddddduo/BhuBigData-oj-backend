@@ -3,9 +3,7 @@ package com.dduo.dduoj.service;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.dduo.dduoj.model.entity.Post;
-import com.dduo.dduoj.model.entity.PostFavour;
 import com.dduo.dduoj.model.entity.User;
 
 /**
@@ -35,7 +33,6 @@ public interface PostFavourService  {
      */
     Page<Post> listFavourPostByPage(IPage<Post> page, Wrapper<Post> queryWrapper,
                                     long favourUserId);
-
     /**
      * 帖子收藏（内部服务）
      *
@@ -44,4 +41,5 @@ public interface PostFavourService  {
      * @return
      */
     int doPostFavourInner(long userId, long postId);
+
 }

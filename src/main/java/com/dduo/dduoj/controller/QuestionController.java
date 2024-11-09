@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
  * 题目接口
  */
 
+// 一套crud 分别是创建 修改 删除 查找题目
 
 @RestController
 @RequestMapping("/question")
@@ -107,7 +108,7 @@ public class QuestionController {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = userService.getLoginUser( request);
+        User user = userService.getLoginUser(request);
         long id = deleteRequest.getId();
         // 判断是否存在
         Question oldQuestion = questionService.getById(id);
