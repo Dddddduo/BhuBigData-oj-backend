@@ -70,6 +70,7 @@ public class UserController {
         String checkPassword = userRegisterRequest.getCheckPassword();
         String userName = userRegisterRequest.getUserName();
 
+        // 看看是不是有的选项没有填写
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,userName)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请补全信息");
         }
