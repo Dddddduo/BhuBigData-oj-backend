@@ -35,6 +35,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
+import static com.dduo.dduoj.constant.UserConstant.USER_LOGIN_STATE;
+
 
 /**
  * 用户接口
@@ -87,24 +89,16 @@ public class UserController {
      */
     @PostMapping("/login")
     public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
-
-        System.out.println("------");
-        System.out.println(userLoginRequest);
-        System.out.println(request);
-        System.out.println("------");
-
+        // 请求体为空
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-
         // get传入响应的数据
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
-
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-
         LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
         return ResultUtils.success(loginUserVO);
     }
@@ -156,13 +150,14 @@ public class UserController {
     @GetMapping("/get/login")
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
         User user = userService.getLoginUser(request);
+
+        System.out.println(request.getSession().getAttribute(USER_LOGIN_STATE));
+
         return ResultUtils.success(userService.getLoginUserVO(user));
     }
 
     // endregion
-
     // region 增删改查
-
     /**
      * 创建用户
      *
