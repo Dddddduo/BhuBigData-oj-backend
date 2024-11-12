@@ -29,7 +29,7 @@ public interface UserService extends IService<User> {
      * @param userName
      * @return 新用户 id
      */
-    long userRegister(String userAccount, String userPassword, String checkPassword, String userName);
+    long userRegister(String userAccount, String userPassword, String checkPassword, String userName , String mail);
 
     /**
      * 用户登录
@@ -120,5 +120,14 @@ public interface UserService extends IService<User> {
      * @return
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
+
+    /**
+     * 忘记密码时 发邮件
+     *
+     * @param userAccount
+     * @param userProfile
+     * @return
+     */
+    boolean userForgetSendMail(String userAccount , String userProfile , HttpServletRequest request);
 
 }
