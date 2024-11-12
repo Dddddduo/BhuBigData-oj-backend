@@ -13,6 +13,12 @@ public interface UserConstant {
      */
     String USER_LOGIN_STATE = "user_login";
 
+
+    /**
+     * 用户忘记密码
+     */
+    String USER_Forget_STATE = "user_forget";
+
     //  region 权限
 
     /**

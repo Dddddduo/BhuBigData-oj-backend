@@ -10,12 +10,7 @@ import com.dduo.dduoj.config.WxOpenConfig;
 import com.dduo.dduoj.constant.UserConstant;
 import com.dduo.dduoj.exception.BusinessException;
 import com.dduo.dduoj.exception.ThrowUtils;
-import com.dduo.dduoj.model.dto.user.UserAddRequest;
-import com.dduo.dduoj.model.dto.user.UserLoginRequest;
-import com.dduo.dduoj.model.dto.user.UserQueryRequest;
-import com.dduo.dduoj.model.dto.user.UserRegisterRequest;
-import com.dduo.dduoj.model.dto.user.UserUpdateMyRequest;
-import com.dduo.dduoj.model.dto.user.UserUpdateRequest;
+import com.dduo.dduoj.model.dto.user.*;
 import com.dduo.dduoj.model.entity.User;
 import com.dduo.dduoj.model.vo.LoginUserVO;
 import com.dduo.dduoj.model.vo.UserVO;
@@ -35,6 +30,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
+import static com.dduo.dduoj.constant.UserConstant.USER_Forget_STATE;
 import static com.dduo.dduoj.constant.UserConstant.USER_LOGIN_STATE;
 
 
@@ -73,10 +69,9 @@ public class UserController {
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
         String userName = userRegisterRequest.getUserName();
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,userName)) {
-            return null;
-        }
-        long result = userService.userRegister(userAccount, userPassword, checkPassword,userName);
+        String mail = userRegisterRequest.getMail();
+
+        long result = userService.userRegister(userAccount, userPassword, checkPassword, userName,mail);
         return ResultUtils.success(result);
     }
 
@@ -314,4 +309,45 @@ public class UserController {
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }
+
+    /**
+     * 忘记密码
+     *
+     * @param userForgetRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/forget")
+    public BaseResponse<Boolean> forgetUser(@RequestBody UserForgetRequest userForgetRequest,
+                                              HttpServletRequest request) {
+        if (userForgetRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // todo 校验一下
+        String userAccount = userForgetRequest.getUserAccount();
+        String userProfile = userForgetRequest.getUserProfile();
+        boolean result = userService.userForgetSendMail(userAccount,userProfile,request);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 忘记密码
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/forget-to-new")
+    public BaseResponse<Boolean> forgetToNewUser(HttpServletRequest request) {
+
+        String code = (String) request.getSession().getAttribute(USER_Forget_STATE);
+
+        if(code==null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "还没有发送邮件");
+        }
+
+        return ResultUtils.error(520, code);
+    }
+
+
 }

@@ -1,5 +1,6 @@
 package com.dduo.dduoj.service.impl;
 
+import static com.dduo.dduoj.constant.UserConstant.USER_Forget_STATE;
 import static com.dduo.dduoj.constant.UserConstant.USER_LOGIN_STATE;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -15,10 +16,12 @@ import com.dduo.dduoj.model.enums.UserRoleEnum;
 import com.dduo.dduoj.model.vo.LoginUserVO;
 import com.dduo.dduoj.model.vo.UserVO;
 import com.dduo.dduoj.service.UserService;
+import com.dduo.dduoj.utils.JavaMailUtils;
 import com.dduo.dduoj.utils.SqlUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -41,22 +44,59 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     private static final String SALT = "dduo";
 
+    /**
+     * 校验是否有汉字
+     */
+    private static final String isContainChineseRegex = ".*[\\u4e00-\\u9fa5].*";
+
+    /**
+     * 校验邮箱是否合法
+     */
+    private static final String isMailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+
+    /**
+     * 用于生成随机数
+     */
+    private static String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    /**
+     * 邮件的标题
+     */
+    private static String mailSubject ="BigData OJ 忘记密码找回啦";
+
+    /**
+     * 邮件的内容
+     */
+    private static String mailTest = "密码忘记了不要慌，多多现在就把验证码给你啦~ (´∩｡• ᵕ •｡∩`) ↓ " + System.lineSeparator()+ "验证码:";
+
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword, String userName) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword, String userName,String mail) {
         // 校验
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword ,userName , mail)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "注册信息没有填写完全");
         }
+
+        if(userAccount.matches(isContainChineseRegex)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号应该是全英文 不应该出现中文");
+        }
+
+        if(!mail.matches(isMailRegex)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱不符合规范");
+        }
+
         if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号过短");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号过短 不应该小于4位 且全英文");
         }
+
         if (userPassword.length() < 6 || checkPassword.length() < 6) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短 不应该小于6位");
         }
+
         // 密码和校验密码相同
         if (!userPassword.equals(checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
         }
+
         synchronized (userAccount.intern()) {
             // 账户不能重复
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -72,6 +112,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword);
             user.setUserName(userName);
+            user.setUserProfile(mail);
+
             boolean saveResult = this.save(user);
             if (!saveResult) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
@@ -84,16 +126,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         // 1. 校验
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "登录信息没有填写完全");
         }
+
         if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号太短了 应该不小于四位");
         }
-        if (userPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
+
+        if (userPassword.length() < 6) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码太短 应该不小于六位");
         }
+
         // 2. 加密
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+
         // 查询用户是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
@@ -110,11 +156,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 3. 记录用户的登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
-
-        HttpSession session = request.getSession();
-        session.setAttribute(USER_LOGIN_STATE, user);
-
-        System.out.println(request.getSession());
         return this.getLoginUserVO(user);
     }
 
@@ -277,5 +318,38 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public boolean userForgetSendMail(String userAccount, String userProfile,HttpServletRequest request)  {
+
+        // 去数据库中比对 是否存在当前邮箱和账号对应的一条数据
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userAccount", userAccount)  // 匹配userAccount字段
+                .eq("userProfile", userProfile); // 匹配userProfile字段
+        // 查询
+        User user = this.baseMapper.selectOne(queryWrapper);
+        // 判断是否查询到对应的用户记录 失败的抛出异常
+        if (user == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号和邮箱不匹配或者不存在账号和邮箱");
+        }
+        // 成功的话 随机生成验证码
+        Random random = new Random();
+        StringBuilder randomString = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            // 随机选择一个字符并追加到 StringBuilder 中
+            int randomIndex = random.nextInt(charSet.length());
+            randomString.append(charSet.charAt(randomIndex));
+        }
+        String code= randomString.toString();
+        // 设置状态 放到 request 里面
+        request.getSession().setAttribute(USER_Forget_STATE, code);
+        // 然后发送短信 告知用户
+        try {
+            JavaMailUtils.send_email(mailSubject,(mailTest+code),userProfile);
+        }catch (Exception e){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "后台错误 无法发送邮件");
+        }
+        return true;
     }
 }
