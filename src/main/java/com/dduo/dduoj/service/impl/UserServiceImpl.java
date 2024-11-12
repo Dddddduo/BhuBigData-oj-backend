@@ -112,7 +112,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
 
         HttpSession session = request.getSession();
-        session.setAttribute(USER_LOGIN_STATE, user);\
+        session.setAttribute(USER_LOGIN_STATE, user);
 
         System.out.println(request.getSession());
         return this.getLoginUserVO(user);
