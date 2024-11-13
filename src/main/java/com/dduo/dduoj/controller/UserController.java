@@ -197,19 +197,19 @@ public class UserController {
      * @param request
      * @return
      */
-    @PostMapping("/update")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
-                                            HttpServletRequest request) {
-        if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        User user = new User();
-        BeanUtils.copyProperties(userUpdateRequest, user);
-        boolean result = userService.updateById(user);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        return ResultUtils.success(true);
-    }
+//    @PostMapping("/update")
+//    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+//    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
+//                                            HttpServletRequest request) {
+//        if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+//        }
+//        User user = new User();
+//        BeanUtils.copyProperties(userUpdateRequest, user);
+//        boolean result = userService.updateById(user);
+//        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+//        return ResultUtils.success(true);
+//    }
 
     /**
      * 根据 id 获取用户（仅管理员）
@@ -320,25 +320,34 @@ public class UserController {
     @PostMapping("/forget")
     public BaseResponse<Boolean> forgetUser(@RequestBody UserForgetRequest userForgetRequest,
                                               HttpServletRequest request) {
+
         if (userForgetRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        // todo 校验一下
-        String userAccount = userForgetRequest.getUserAccount();
-        String userProfile = userForgetRequest.getUserProfile();
+
+        String userAccount = userForgetRequest.getUserAccount(); // 账号
+        String userProfile = userForgetRequest.getUserProfile(); // 邮箱
+
+        if (StringUtils.isAnyBlank(userAccount, userProfile)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
         boolean result = userService.userForgetSendMail(userAccount,userProfile,request);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+
         return ResultUtils.success(true);
     }
 
     /**
-     * 忘记密码
+     * 重置密码
      *
+     * @param userUpdateRequest
      * @param request
      * @return
      */
-    @PostMapping("/forget-to-new")
-    public BaseResponse<Boolean> forgetToNewUser(HttpServletRequest request) {
+    @PostMapping("/update")
+    public BaseResponse<Boolean> forgetToNewUser(@RequestBody UserUpdateRequest userUpdateRequest
+            ,HttpServletRequest request) {
 
         String code = (String) request.getSession().getAttribute(USER_Forget_STATE);
 
@@ -346,8 +355,20 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "还没有发送邮件");
         }
 
-        return ResultUtils.error(520, code);
+        String userAccount = userUpdateRequest.getUserAccount();
+        String userCode = userUpdateRequest.getUserCode();
+        String userNewPassword = userUpdateRequest.getUserNewPassword();
+        String userCheckPassword = userUpdateRequest.getUserCheckPassword();
+
+        if (StringUtils.isAnyBlank(userAccount, userCode , userNewPassword , userCheckPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        long l = userService.userForgetUpdate(userAccount,userCode,userNewPassword,userCheckPassword,request);
+
+        // 清空一下session(会话)里面的Attribute中的USER_Forget_STATE
+        request.getSession().removeAttribute(USER_Forget_STATE);
+
+        return ResultUtils.success(true);
     }
-
-
 }

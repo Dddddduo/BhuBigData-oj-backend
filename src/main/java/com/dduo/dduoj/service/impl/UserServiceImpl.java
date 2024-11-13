@@ -4,6 +4,7 @@ import static com.dduo.dduoj.constant.UserConstant.USER_Forget_STATE;
 import static com.dduo.dduoj.constant.UserConstant.USER_LOGIN_STATE;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dduo.dduoj.common.ErrorCode;
@@ -67,7 +68,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 邮件的内容
      */
-    private static String mailTest = "密码忘记了不要慌，多多现在就把验证码给你啦~ (´∩｡• ᵕ •｡∩`) ↓ " + System.lineSeparator()+ "验证码:";
+    private static String mailText1 = "密码忘记了不要慌，多多现在就把验证码给你啦~ (´∩｡• ᵕ •｡∩`) ↓ " ;
+    private static String mailText2 =  System.lineSeparator()+"您当前重置密码的账号是: ";
+    private static String mailText3 =  System.lineSeparator()+"重置的所使用的验证码是: " ;
+    private static String mailText4 =  System.lineSeparator()+"下次可要记住密码呀" ;
+    private static String mailText5 =  System.lineSeparator() ;
+    private static String mailText6 =  System.lineSeparator()+"你好像在等十九世纪的青洄" ;
+    private static String mailText7 =  System.lineSeparator()+"可我是北纬67度以北的雪" ;
+    private static String mailText8 =  System.lineSeparator()+"Csdn博客 : https://blog.csdn.net/qq_30500575 " ;
+    private static String mailText9 =  System.lineSeparator()+"Github主页 : https://github.com/Dddddduo " ;
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword, String userName,String mail) {
@@ -322,7 +331,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public boolean userForgetSendMail(String userAccount, String userProfile,HttpServletRequest request)  {
-
         // 去数据库中比对 是否存在当前邮箱和账号对应的一条数据
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount)  // 匹配userAccount字段
@@ -346,10 +354,42 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         request.getSession().setAttribute(USER_Forget_STATE, code);
         // 然后发送短信 告知用户
         try {
-            JavaMailUtils.send_email(mailSubject,(mailTest+code),userProfile);
+            String mailMessage = mailText1 + mailText2 + userAccount + mailText3 +code + mailText4 + mailText5 + mailText6 + mailText7 + mailText8 + mailText9;
+            JavaMailUtils.send_email(mailSubject,mailMessage,userProfile);
         }catch (Exception e){
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "后台错误 无法发送邮件");
         }
         return true;
+    }
+
+    @Override
+    public long userForgetUpdate(String userAccount, String userCode, String userNewPassword, String userCheckPassword, HttpServletRequest request) {
+        //  校验验证码是否和session里面的一样
+        String code = (String) request.getSession().getAttribute(USER_Forget_STATE);
+        if(!userCode.equals(code)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误");
+        }
+
+        //  校验密码是否符合规范(不小于6位)
+        if (userNewPassword.length() < 6) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码太短 应该不小于六位");
+        }
+
+        //  校验两次密码是否一样
+        if(!userNewPassword.equals(userCheckPassword)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一样");
+        }
+
+        //  更新数据库里面的数据 使用BaseMapper更新
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userNewPassword).getBytes());
+
+        updateWrapper.eq("userAccount", userAccount);
+        updateWrapper.set("userPassword", encryptPassword);
+
+        int update = this.baseMapper.update(null, updateWrapper);
+
+        return update;
     }
 }

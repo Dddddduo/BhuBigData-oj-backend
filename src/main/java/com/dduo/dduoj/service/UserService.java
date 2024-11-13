@@ -130,4 +130,15 @@ public interface UserService extends IService<User> {
      */
     boolean userForgetSendMail(String userAccount , String userProfile , HttpServletRequest request);
 
+
+    /**
+     * 在忘记密码界面 更新账户
+     *
+     * @param userAccount
+     * @param userCode
+     * @param request
+     * @return
+     */
+    long userForgetUpdate(String userAccount , String userCode ,String userNewPassword, String userCheckPassword, HttpServletRequest request);
+
 }
