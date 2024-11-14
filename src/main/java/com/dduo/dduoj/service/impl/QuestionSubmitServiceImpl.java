@@ -85,7 +85,13 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         questionSubmit.setStatus(QuestionSubmitStatusEnum.WAITING.getValue());
         questionSubmit.setJudgeInfo("{}");
         questionSubmit.setIsDelete(0);
+
+        // 题目提交
+        // todo 这边少参数
+
+
         boolean save = this.save(questionSubmit);
+
         if (!save){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "数据插入失败");
         }

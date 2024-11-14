@@ -70,9 +70,14 @@ public class Question implements Serializable {
     private Integer favourNum;
 
     /**
-     * 创建用户 id
+     * 创建用户的名称
      */
     private Long userId;
+
+    /**
+     * 创建用户的名称
+     */
+    private String userName;
 
     /**
      * 创建时间
