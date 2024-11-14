@@ -78,6 +78,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private static String mailText8 =  System.lineSeparator()+"Csdn博客 : https://blog.csdn.net/qq_30500575 " ;
     private static String mailText9 =  System.lineSeparator()+"Github主页 : https://github.com/Dddddduo " ;
 
+    /**
+     * 注册
+     * @param userAccount   用户账户
+     * @param userPassword  用户密码
+     * @param checkPassword 校验密码
+     * @param userName
+     * @param mail
+     * @return
+     */
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword, String userName,String mail) {
         // 校验
@@ -131,6 +140,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    /**
+     * 登录
+     * @param userAccount  用户账户
+     * @param userPassword 用户密码
+     * @param request
+     * @return
+     */
     @Override
     public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         // 1. 校验
@@ -165,6 +181,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 3. 记录用户的登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
+
+        Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
+
+        System.out.println(attribute);
+
         return this.getLoginUserVO(user);
     }
 
@@ -210,6 +231,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public User getLoginUser(HttpServletRequest request) {
         // 先判断是否已登录
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+
         User currentUser = (User) userObj;
         if (currentUser == null || currentUser.getId() == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);

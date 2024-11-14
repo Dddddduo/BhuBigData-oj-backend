@@ -1,6 +1,5 @@
 package com.dduo.dduoj.controller;
 
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dduo.dduoj.annotation.AuthCheck;
 import com.dduo.dduoj.common.BaseResponse;
@@ -31,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
+import static com.dduo.dduoj.constant.UserConstant.USER_LOGIN_STATE;
+
 /**
  * 题目接口
  */
@@ -55,7 +56,7 @@ public class QuestionController {
     // region 增删改查
 
     /**
-     * 创建
+     * 创建 题目
      *
      * @param questionAddRequest
      * @param request
@@ -85,6 +86,8 @@ public class QuestionController {
         User loginUser = userService.getLoginUser(request);
 
         question.setUserId(loginUser.getId());
+        question.setUserName(loginUser.getUserName());
+
         question.setFavourNum(0);
         question.setThumbNum(0);
 
@@ -121,7 +124,7 @@ public class QuestionController {
     }
 
     /**
-     * 更新（仅管理员）
+     * 更新题目
      *
      * @param questionUpdateRequest
      * @return
@@ -251,7 +254,7 @@ public class QuestionController {
     }
 
     /**
-     * 编辑（用户）
+     * 编辑 题目
      *
      * @param questionEditRequest
      * @param request
@@ -291,6 +294,14 @@ public class QuestionController {
         return ResultUtils.success(result);
     }
 
+    /**
+     * 提交题目
+     * 交题
+     *
+     * @param questionSubmitAddRequest
+     * @param request
+     * @return
+     */
     @PostMapping("/question_submit/do")
     public BaseResponse<Long> doQuestionSubmit(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
                                                HttpServletRequest request) {
@@ -298,11 +309,16 @@ public class QuestionController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
 
+        Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
+
+        System.out.println(attribute);
+
+        // 获取登录信息
         final User loginUser = userService.getLoginUser(request);
+
         long questionSubmitId = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
         return ResultUtils.success(questionSubmitId);
     }
-
 
     /**
      * 分页获取题目提交列表（除了管理员外，普通用户只能看到非答案、提交代码等公开信息）
