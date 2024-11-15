@@ -6,6 +6,7 @@ import com.dduo.dduoj.judge.codesandbox.model.ExecuteCodeResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+// 代理模式
 @Slf4j
 @AllArgsConstructor
 public class CodeSandboxProxy implements CodeSandbox {
