@@ -13,7 +13,6 @@ import java.util.List;
  * Java程序的判题策略
  * */
 public class JavaLanguageJudgeStrategy implements JudgeStrategy {
-
     /**
      * 执行判题
      * @param judgeContext
