@@ -13,6 +13,7 @@ import java.util.Date;
 @TableName(value ="question")
 @Data
 public class Question implements Serializable {
+
     /**
      * id
      */

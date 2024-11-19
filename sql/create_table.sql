@@ -56,14 +56,3 @@ create table if not exists question_submit
     index idx_userId (userId)
 ) comment '题目提交表';
 
--- 帖子收藏表（硬删除）
-create table if not exists post_favour
-(
-    id         bigint auto_increment comment 'id' primary key,
-    postId     bigint                             not null comment '帖子 id',
-    userId     bigint                             not null comment '创建用户 id',
-    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
-    updateTime datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    index idx_postId (postId),
-    index idx_userId (userId)
-) comment '帖子收藏';

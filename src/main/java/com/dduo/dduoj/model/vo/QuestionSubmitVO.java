@@ -51,6 +51,11 @@ public class QuestionSubmitVO implements Serializable {
     private Long userId;
 
     /**
+     * 创建用户 昵称
+     */
+    private String userName;
+
+    /**
      * 创建时间
      */
     private Date createTime;
@@ -107,4 +112,5 @@ public class QuestionSubmitVO implements Serializable {
     }
 
     private static final long serialVersionUID = 1L;
+
 }

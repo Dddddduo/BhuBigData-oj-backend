@@ -23,6 +23,9 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * 题目提交接口
+ *
+ * 目前所有代码已经搬到 QuestionController 里面了
+ *
  */
 @RestController
 @RequestMapping("/question_submit")
