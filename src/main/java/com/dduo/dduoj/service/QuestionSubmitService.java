@@ -2,17 +2,12 @@ package com.dduo.dduoj.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dduo.dduoj.model.dto.question.QuestionQueryRequest;
 import com.dduo.dduoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.dduo.dduoj.model.dto.questionsubmit.QuestionSubmitQueryRequest;
-import com.dduo.dduoj.model.entity.Question;
 import com.dduo.dduoj.model.entity.QuestionSubmit;
 import com.dduo.dduoj.model.entity.User;
 import com.dduo.dduoj.model.vo.QuestionSubmitVO;
-import com.dduo.dduoj.model.vo.QuestionVO;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author ZDY

@@ -29,6 +29,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -51,6 +53,10 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     @Resource
     @Lazy
     private JudgeService judgeService;
+
+//    @Resource
+//    @Lazy
+//    private QuestionSubmitService questionSubmitService;
 
     /**
      * 提交题目
@@ -75,9 +81,11 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         }
         // 是否已提交题目
         long userId = loginUser.getId();
+        String userName = loginUser.getUserName();
         // 每个用户串行提交题目
         QuestionSubmit questionSubmit = new QuestionSubmit();
         questionSubmit.setUserId(userId);
+        questionSubmit.setUserName(userName);
         questionSubmit.setQuestionId(questionId);
         questionSubmit.setCode(questionSubmitAddRequest.getCode());
         questionSubmit.setLanguage(language);
@@ -85,13 +93,8 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         questionSubmit.setStatus(QuestionSubmitStatusEnum.WAITING.getValue());
         questionSubmit.setJudgeInfo("{}");
         questionSubmit.setIsDelete(0);
-
         // 题目提交
-        // todo 这边少参数
-
-
         boolean save = this.save(questionSubmit);
-
         if (!save){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "数据插入失败");
         }
@@ -148,24 +151,32 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
             questionSubmitVO.setCode(null);
         }
         return questionSubmitVO;
-    }
 
-    /*
-     * 多条数据
-     * */
-    @Override
-    public Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> questionSubmitPage, User loginUser) {
-        List<QuestionSubmit> questionSubmitList = questionSubmitPage.getRecords();
-        Page<QuestionSubmitVO> questionSubmitVOPage = new Page<>(questionSubmitPage.getCurrent(), questionSubmitPage.getSize(), questionSubmitPage.getTotal());
-        if (CollectionUtils.isEmpty(questionSubmitList)) {
-            return questionSubmitVOPage;
-        }
-        List<QuestionSubmitVO> questionSubmitVOList = questionSubmitList.stream()
-                .map(questionSubmit -> getQuestionSubmitVO(questionSubmit, loginUser))
-                .collect(Collectors.toList());
-        questionSubmitVOPage.setRecords(questionSubmitVOList);
-        return questionSubmitVOPage;
     }
+    /*
+         * 多条数据
+         * */
+        @Override
+        public Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> questionSubmitPage, User loginUser) {
+
+            List<QuestionSubmit> questionSubmitList = questionSubmitPage.getRecords();
+            Page<QuestionSubmitVO> questionSubmitVOPage = new Page<>(questionSubmitPage.getCurrent(),
+                    questionSubmitPage.getSize(),
+                    questionSubmitPage.getTotal());
+
+            if (CollectionUtils.isEmpty(questionSubmitList)) {
+                return questionSubmitVOPage;
+            }
+
+            List<QuestionSubmitVO> questionSubmitVOList = questionSubmitList
+                    .stream()
+                    .map(questionSubmit -> getQuestionSubmitVO(questionSubmit, loginUser))
+                    .collect(Collectors.toList());
+
+            questionSubmitVOPage.setRecords(questionSubmitVOList);
+            return questionSubmitVOPage;
+
+        }
 
 }
 

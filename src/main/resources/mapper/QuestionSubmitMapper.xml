@@ -12,13 +12,16 @@
             <result property="status" column="status" jdbcType="INTEGER"/>
             <result property="questionId" column="questionId" jdbcType="BIGINT"/>
             <result property="userId" column="userId" jdbcType="BIGINT"/>
+            <result property="userName" column="userName" jdbcType="BIGINT"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,language,code,
-        judgeInfo,status,questionId,
-        userId,createTime,updateTime
+        judge_info,status,question_id,
+        user_id,create_time,update_time,
+        is_delete
     </sql>
 </mapper>
