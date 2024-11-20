@@ -336,6 +336,10 @@ public class QuestionController {
         long current = questionSubmitQueryRequest.getCurrent();
         long size = questionSubmitQueryRequest.getPageSize();
 
+        System.out.println("----------");
+        System.out.println("questionSubmitQueryRequest"+questionSubmitQueryRequest);
+        System.out.println("----------");
+
         System.out.println("current:"+current+",  "+"size:"+size);
 
         // 从数据库中查询原始的题目提交分页信息
