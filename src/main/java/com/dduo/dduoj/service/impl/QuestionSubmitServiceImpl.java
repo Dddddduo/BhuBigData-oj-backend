@@ -67,18 +67,23 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
      */
     @Override
     public long doQuestionSubmit(QuestionSubmitAddRequest questionSubmitAddRequest, User loginUser) {
+
+        // todo 重构方法
+
         // 校验编程语言是否合法
         String language = questionSubmitAddRequest.getLanguage();
         QuestionSubmitLanguageEnum languageEnum = QuestionSubmitLanguageEnum.getEnumByValue(language);
         if (languageEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "编程语言错误");
         }
+
         long questionId = questionSubmitAddRequest.getQuestionId();
         // 判断实体是否存在，根据类别获取实体
         Question question = questionService.getById(questionId);
         if (question == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
+
         // 是否已提交题目
         long userId = loginUser.getId();
         String userName = loginUser.getUserName();
@@ -93,23 +98,28 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         questionSubmit.setStatus(QuestionSubmitStatusEnum.WAITING.getValue());
         questionSubmit.setJudgeInfo("{}");
         questionSubmit.setIsDelete(0);
+
         // 题目提交
         boolean save = this.save(questionSubmit);
         if (!save){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "数据插入失败");
         }
+
         // todo 执行判题服务
         Long questionSubmitId = questionSubmit.getId();
-        // 执行判题服务
+
+        // 执行判题服务 异步执行
         CompletableFuture.runAsync(() -> {
             judgeService.doJudge(questionSubmitId);
         });
+
         return questionSubmitId;
     }
 
-
     /**
-     * 获取查询包装类（用户根据哪些字段查询，根据前端传来的请求对象，得到 mybatis 框架支持的查询 QueryWrapper 类）
+     * 获取查询包装类（
+     * 用户根据哪些字段查询，根据前端传来的请求对象，得到 mybatis 框架支持的查询 QueryWrapper 类）
+     * 我们只需要去关注拼接的条件就行
      *
      * @param questionSubmitQueryRequest
      * @return

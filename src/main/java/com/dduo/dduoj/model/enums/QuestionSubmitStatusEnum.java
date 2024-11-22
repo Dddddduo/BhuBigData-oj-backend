@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public enum QuestionSubmitStatusEnum {
 
-    WAITING("等待判题", 0),
+    WAITING("待判题", 0),
     RUNNING("判题中", 1),
     SUCCESS("成功", 2),
     FAILED("失败", 3);

@@ -298,27 +298,23 @@ public class QuestionController {
     /**
      * 提交题目
      * 交题
+     * 分为两个逻辑
+     * 第一个是把信息提交到后端
+     * 第二个是代码传到后端的另一个接口去判题
      *
      * @param questionSubmitAddRequest
      * @param request
      * @return
      */
     @PostMapping("/question_submit/do")
-    public BaseResponse<Long> doQuestionSubmit(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
-                                               HttpServletRequest request) {
+    public BaseResponse<Long> doQuestionSubmit(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest, HttpServletRequest request) {
         if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-
         Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
-
-//        System.out.println(attribute);
-
         // 获取登录信息
         final User loginUser = userService.getLoginUser(request);
-
         long questionSubmitId = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
-
         return ResultUtils.success(questionSubmitId);
     }
 

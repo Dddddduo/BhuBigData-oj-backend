@@ -14,12 +14,16 @@ public class RemoteCodeSandbox implements CodeSandbox {
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
         System.out.println("远程代码沙箱");
-        String url = "http://localhost:8090/executeCode";
+        System.out.println("传过来的请求: "+executeCodeRequest);
+        String url = "http://localhost:8090/health";
+
         String json = JSONUtil.toJsonStr(url);
-        String responseStr = HttpUtil.createPost(url)
+
+        String responseStr = HttpUtil.createGet(url)
                 .body(json)
                 .execute()
                 .body();
+
         if(StringUtils.isBlank(responseStr)){
             throw new BusinessException(API_REQUEST_ERROR, "executeCode remoteSandbox error, message = {}"+responseStr);
         }
