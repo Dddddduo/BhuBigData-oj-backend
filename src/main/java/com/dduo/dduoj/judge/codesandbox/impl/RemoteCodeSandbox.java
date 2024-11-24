@@ -15,6 +15,8 @@ public class RemoteCodeSandbox implements CodeSandbox {
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
         System.out.println("远程代码沙箱");
         System.out.println("传过来的请求: "+executeCodeRequest);
+
+        // 替换成代码沙箱接口的路径
         String url = "http://localhost:8090/health";
 
         String json = JSONUtil.toJsonStr(url);
