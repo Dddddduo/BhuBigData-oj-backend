@@ -20,12 +20,13 @@ public class JudgeManger {
      * @return
      * */
     JudgeInfo doJudge(JudgeContext judgeContext) {
-        QuestionSubmit questionSubmit = judgeContext.getQuestionSubmit();
-        String language = questionSubmit.getLanguage();
-        JudgeStrategy judgeStrategy = new DefaultJudgeStrategy();
-        if ("java".equals(language)) {
-            judgeStrategy = new JavaLanguageJudgeStrategy();
-        }
+//        QuestionSubmit questionSubmit = judgeContext.getQuestionSubmit();
+//        String language = questionSubmit.getLanguage();
+//        JudgeStrategy judgeStrategy = new DefaultJudgeStrategy();
+//        if ("java".equals(language)) {
+//
+//        }
+        JudgeStrategy judgeStrategy = new JavaLanguageJudgeStrategy();
         return judgeStrategy.doJudge(judgeContext);
     }
 

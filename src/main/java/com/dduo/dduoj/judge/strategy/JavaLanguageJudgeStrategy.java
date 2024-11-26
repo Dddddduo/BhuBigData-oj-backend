@@ -51,23 +51,24 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
                 return judgeInfoResponse;
             }
         }
+
         // 判断题目限制
+        // 暂时没有做内存限制的处理
         String judgeConfigStr = question.getJudgeConfig();
         JudgeConfig judgeConfig = JSONUtil.toBean(judgeConfigStr, JudgeConfig.class);
+//
+//        Long needMemoryLimit = judgeConfig.getMemoryLimit();
+//        if (memory > needMemoryLimit) {
+//            judgeInfoMessageEnum = JudgeInfoMessageEnum.Memory_Limit_Exceeded;
+//            judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
+//            return judgeInfoResponse;
+//        }
 
-        Long needMemoryLimit = judgeConfig.getMemoryLimit();
+        // Java程序本身需要额外执行1秒钟
+        long JAVA_POGRAME_TIME_COST=1000L;
         Long needTimeLimit = judgeConfig.getTimeLimit();
-        if (memory > needMemoryLimit) {
-            judgeInfoMessageEnum = JudgeInfoMessageEnum.Memory_Limit_Exceeded;
-            judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
-            return judgeInfoResponse;
-        }
-
-        // Java程序本身需要额外执行10秒钟
-        long JAVA_POGRAME_TIME_COST=10000L;
-
-        if (time -JAVA_POGRAME_TIME_COST > needTimeLimit) {
-            judgeInfoMessageEnum = JudgeInfoMessageEnum.Memory_Limit_Exceeded;
+        if (time - JAVA_POGRAME_TIME_COST > needTimeLimit) {
+            judgeInfoMessageEnum = JudgeInfoMessageEnum.Time_Limit_Exceeded;
             judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
             return judgeInfoResponse;
         }
