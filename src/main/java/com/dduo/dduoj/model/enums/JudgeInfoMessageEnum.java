@@ -14,7 +14,7 @@ public enum JudgeInfoMessageEnum {
     Accepted("Accepted", "Accepted"),
     Wrong_Answer("Wrong Answer", "Wrong Answer"),
     Compile_Error("Compile Error", "Compile Error"),
-    Memory_Limit_Exceeded("Memory Limit Exceeded", "Memory Limit Exceeded"),
+    Memory_Limit_Exceeded("Memory Limit Exceeded", "超时"),
     Time_Limit_Exceeded("Time Limit Exceeded", "Time Limit Exceeded"),
     Presentation_Error("Presentation Error", "Presentation Error"),
     Output_Limit_Exceeded("Output Limit Exceeded", "Output Limit Exceeded"),

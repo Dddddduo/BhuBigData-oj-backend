@@ -89,6 +89,7 @@ public class JudgeServiceImpl implements JudgeService {
         // 输入用例
         List<String> inputList = judgeCaselist.stream().map(JudgeCase::getInput).collect(Collectors.toList());
         ExecuteCodeRequest executeRequest = ExecuteCodeRequest.builder().code(code).language(language).inputList(inputList).build();
+
         // 调用代码沙箱获取结果
         ExecuteCodeResponse executeCodeResponse=codeSandbox.executeCode(executeRequest);
         List<String> outputList = executeCodeResponse.getOutputList();
