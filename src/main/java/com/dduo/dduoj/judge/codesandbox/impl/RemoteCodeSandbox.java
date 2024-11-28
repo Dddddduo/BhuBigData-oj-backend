@@ -18,10 +18,11 @@ public class RemoteCodeSandbox implements CodeSandbox {
 
         // 看一下能不能调通远程接口
 //         String url = "http://localhost:8090/health";
-      
-        String url = "http://localhost:8090/executeCode";
+//        String url = "http://localhost:8090/executeCode";
 
-//        String url="http://codesandbox.gczdy.cn:8090/executeCode";
+        // 服务器的接口
+//        String url = "http://localhost:8090/health";
+        String url="http://codesandbox.gczdy.cn:8090/executeCode";
 
         // 设置请求体 json格式
         String json = JSONUtil.toJsonStr(executeCodeRequest);

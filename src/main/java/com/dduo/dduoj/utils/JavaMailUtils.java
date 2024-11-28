@@ -21,9 +21,9 @@ public class JavaMailUtils {
     /**
      * 传入的参数是 邮件地址 和 发送的内容 和 发送的标题
      *
-     * @param subject
-     * @param text
-     * @param mail
+     * @param subject 标题
+     * @param text 正文内容
+     * @param mail 收件人地址
      * @throws Exception
      */
     public static void send_email(String subject, String text, String mail) throws Exception {
@@ -43,11 +43,14 @@ public class JavaMailUtils {
         msf.setTrustAllHosts(true);
         props.put("mail.smtp.ssl.socketFactory", msf);
         // 创建邮箱会话
+
+        // todo 填写发发件人的QQ邮箱和授权码
         Session session = Session.getInstance(props, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("1732446549@qq.com", "mxytgpalxokeedjd");  // 你的QQ邮箱和授权码
+                return new PasswordAuthentication("1732446549@qq.com", "mxytgpalxokeedjd");
             }
         });
+
         // 创建邮件消息对象
         Message message = new MimeMessage(session);
         message.setSubject(subject);
