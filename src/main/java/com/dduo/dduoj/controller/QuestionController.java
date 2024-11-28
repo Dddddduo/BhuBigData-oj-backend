@@ -311,7 +311,7 @@ public class QuestionController {
         if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
+//        Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
         // 获取登录信息
         final User loginUser = userService.getLoginUser(request);
         long questionSubmitId = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
@@ -332,9 +332,7 @@ public class QuestionController {
         long current = questionSubmitQueryRequest.getCurrent();
         long size = questionSubmitQueryRequest.getPageSize();
 
-        System.out.println("----------");
         System.out.println("questionSubmitQueryRequest"+questionSubmitQueryRequest);
-        System.out.println("----------");
 
         System.out.println("current:"+current+",  "+"size:"+size);
 
