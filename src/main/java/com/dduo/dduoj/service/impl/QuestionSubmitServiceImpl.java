@@ -33,6 +33,9 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
@@ -105,13 +108,23 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "数据插入失败");
         }
 
-        // todo 执行判题服务
+        // 执行判题服务
         Long questionSubmitId = questionSubmit.getId();
 
         // 执行判题服务 异步执行
-        CompletableFuture.runAsync(() -> {
-            judgeService.doJudge(questionSubmitId);
-        });
+//        CompletableFuture.runAsync(() -> {
+//            // todo 实际逻辑
+//            judgeService.doJudge(questionSubmitId);
+//        } );
+
+        // 自定义线程池
+        // TODO 改成异步方法
+//        Executor executor = Executors.newFixedThreadPool(16);
+//        CompletableFuture.runAsync(() -> {
+//            judgeService.doJudge(questionSubmitId);
+//        }, executor);
+
+        judgeService.doJudge(questionSubmitId);
 
         return questionSubmitId;
     }

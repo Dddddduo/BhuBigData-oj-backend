@@ -27,10 +27,27 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
         Question question = judgeContext.getQuestion();
         List<JudgeCase> judgeCaseList = judgeContext.getJudgeCaselist();
 
-        // 从判题信息中获取信息
-        Long memory = judgeInfo.getMemoryLimit();
-        Long time = judgeInfo.getTime();
+        Long memory;
+        Long time;
+
         JudgeInfo judgeInfoResponse = new JudgeInfo();
+
+        if(judgeInfo==null){
+            // 没有判题信息说明 说明 编译错误 这个时候要避免抛出空指针
+            // 直接返回就行
+            memory = (long) -1;
+            time = (long) -1;
+            JudgeInfoMessageEnum judgeInfoMessageEnum = JudgeInfoMessageEnum.Compile_Error;
+            judgeInfoResponse.setMemoryLimit(memory);
+            judgeInfoResponse.setTime(time);
+            judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
+            return judgeInfoResponse;
+        }else{
+            // 从判题信息中获取信息
+             memory = judgeInfo.getMemoryLimit();
+             time = judgeInfo.getTime();
+        }
+
 
         JudgeInfoMessageEnum judgeInfoMessageEnum = JudgeInfoMessageEnum.Accepted;
         judgeInfoResponse.setMemoryLimit(memory);
@@ -65,13 +82,14 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
 //        }
 
         // Java程序本身需要额外执行1秒钟
-        long JAVA_POGRAME_TIME_COST=1000L;
+//        long JAVA_POGRAME_TIME_COST=1000L;
         Long needTimeLimit = judgeConfig.getTimeLimit();
-        if (time - JAVA_POGRAME_TIME_COST > needTimeLimit) {
+        if (time  > needTimeLimit) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.Time_Limit_Exceeded;
             judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
             return judgeInfoResponse;
         }
+
         judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
 
         return judgeInfoResponse;
