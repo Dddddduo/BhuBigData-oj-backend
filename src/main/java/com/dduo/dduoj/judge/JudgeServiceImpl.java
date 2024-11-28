@@ -69,8 +69,7 @@ public class JudgeServiceImpl implements JudgeService {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "题目状态更新错误");
         }
 
-        // 题目状态已经更新为判题中
-        // 接下来放代码沙箱
+        // 题目状态已经更新为判题中 接下来调代码沙箱进行下一步处理
 
         // 这个value是写在配置文件中的 设计模式是:静态工厂模式
         CodeSandbox codeSandbox = CodeSandboxFactory.NewInstance(value);
@@ -111,11 +110,28 @@ public class JudgeServiceImpl implements JudgeService {
         questionSubmitUpdate.setStatus(QuestionSubmitStatusEnum.SUCCESS.getValue());
         questionSubmitUpdate.setJudgeInfo(JSONUtil.toJsonStr(judgeInfo));
 
-        // 看数据库
+        // 更新题目提交数据状态数据库
         boolean update = questionSubmitService.updateById(questionSubmitUpdate);
-
         if (!update) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "题目状态更新错误");
+        }
+
+        // 更新题目的获取总提交数
+        Integer submitNum = question.getSubmitNum();
+        submitNum++;
+        question.setSubmitNum(submitNum);
+
+        // 更新题目的通过
+        if(judgeInfo.message.equals("Accepted")){
+            Integer acceptedNum = question.getAcceptedNum();
+            acceptedNum+=1;
+            question.setAcceptedNum(acceptedNum);
+        }
+
+        // 更新题目数据状态数据库
+        boolean questionJudge = questionService.updateById(question);
+        if (!questionJudge) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "题目更新错误");
         }
 
         // 返回结果

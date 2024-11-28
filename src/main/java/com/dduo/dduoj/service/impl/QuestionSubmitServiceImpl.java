@@ -71,8 +71,6 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     @Override
     public long doQuestionSubmit(QuestionSubmitAddRequest questionSubmitAddRequest, User loginUser) {
 
-        // todo 重构方法
-
         // 校验编程语言是否合法
         String language = questionSubmitAddRequest.getLanguage();
         QuestionSubmitLanguageEnum languageEnum = QuestionSubmitLanguageEnum.getEnumByValue(language);
@@ -124,6 +122,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
 //            judgeService.doJudge(questionSubmitId);
 //        }, executor);
 
+        // 交到判题机去判题
         judgeService.doJudge(questionSubmitId);
 
         return questionSubmitId;
